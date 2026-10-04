@@ -1,0 +1,15 @@
+# MCP 服务依赖
+# 
+# 用途：mcp_server.py，把检索与咨询能力暴露给 Claude Desktop / Cursor / Cline 等 MCP 客户端
+# 不装时：mcp_server.py 无法启动，其他功能不受影响
+#
+# ⚠️  环境要求：本文件中的 mcp 包需要 Python >= 3.10。
+#     在 Python 3.9 环境下安装会失败（No matching distribution found）。
+#     如需使用 MCP 服务，请升级 Python 至 3.10 或以上。
+#
+# 安装大小：约 20MB
+#
+# 安装：
+#   pip install -r requirements-mcp.txt
+
+mcp>=1.0.0

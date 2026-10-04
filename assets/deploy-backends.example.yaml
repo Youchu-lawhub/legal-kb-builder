@@ -1,0 +1,161 @@
+# 云端部署后端配置模板
+# 
+# 复制为 deploy-backends.yaml 后填写
+# 用于把本地知识库智能体托管到云端平台，获取公网可访问的 API
+#
+# 两条路径：
+#   1. 阿里云百炼 — 通过百炼 CLI (bl) 创建智能体应用，绑定知识库或 MCP
+#   2. Qoder Cloud Agents — 通过 Qoder API 创建云端 Agent，上传 KB 文件
+#
+# 详见 references/deploy-guide.md
+
+platforms:
+
+  # ═══════════════════════════════════════════════
+  # 路径一：阿里云百炼
+  # ═══════════════════════════════════════════════
+  bailian:
+    enabled: false
+    
+    # API Key 获取地址：https://bailian.console.aliyun.com/cn-beijing/?tab=app#/api-key
+    # 或通过 bl auth login --console 浏览器登录（推荐）
+    api_key: ""
+    
+    # 地域：cn-beijing / cn-hangzhou / cn-shanghai
+    region: "cn-beijing"
+    
+    # CLI 工具（自动检测，一般不需改）
+    cli_command: "bl"  # 或 "bailian"
+    
+    # 智能体应用配置
+    app:
+      name: "legal-kb-agent"
+      description: "法律知识库咨询智能体"
+      
+      # 模型选择
+      # qwen-max: 最强，适合复杂法律推理
+      # qwen-plus: 均衡（推荐）
+      # qwen-turbo: 最快，适合简单问答
+      model: "qwen-plus"
+      
+      # 知识库接入模式
+      # upload: 上传 md 文件到百炼内置知识库（百炼自己做检索）
+      # mcp:    通过 MCP 协议调用本地 mcp_server（保留你的四路混合检索）
+      # api:    通过 HTTP 调用已部署的 api_server（需先部署到公网服务器）
+      kb_mode: "mcp"
+      
+      # upload 模式配置
+      upload:
+        # 上传哪些文件到百炼知识库
+        kb_files:
+          - "kb_dir/*.md"
+        # 百炼知识库 ID（首次创建后填入，后续更新用）
+        kb_id: ""
+      
+      # mcp 模式配置
+      mcp:
+        # 本地 mcp_server 的公网可访问地址
+        # 需要先在公网服务器上部署 mcp_server.py
+        # 百炼会通过这个地址调用你的检索能力
+        endpoint: "https://your-server.com/mcp/legal-kb"
+      
+      # api 模式配置
+      api:
+        # 已部署的 api_server 公网地址
+        endpoint: "https://your-server.com:8000"
+  
+  # ═══════════════════════════════════════════════
+  # 路径二：Qoder Cloud Agents
+  # ═══════════════════════════════════════════════
+  qoder:
+    enabled: false
+    
+    # PAT 获取：https://qoder.com → 设置 → 个人访问令牌 → 创建令牌
+    # 或设置环境变量：export QODER_PAT="your-token"
+    pat: ""
+    
+    # API 网关（一般不需改）
+    api_base: "https://api.qoder.com/api/v1/cloud"
+    
+    # Agent 配置
+    agent:
+      name: "legal-kb-agent"
+      
+      # 模型：ultimate（最强）/ standard / lite
+      model: "ultimate"
+      
+      # System Prompt（描述 Agent 如何使用知识库）
+      system: |
+        你是一个法律知识库咨询智能体。
+        用户会问你法律问题，你需要：
+        1. 用 scripts/hybrid_search.py 检索本地知识库
+        2. 基于检索结果给出结构化回答
+        3. 引用法条和案例时标注来源
+        4. 无法确定时明确说明，不编造法条
+      
+      # Agent 工具配置
+      # Qoder Agent 在云端 sandbox 中运行，可用 Bash 执行检索脚本
+      tools:
+        type: "agent_toolset_20260401"
+        enabled_tools:
+          - "Bash"      # 执行 hybrid_search.py
+          - "Read"      # 读取检索结果
+          - "Glob"      # 查找知识库文件
+          - "Grep"      # 关键词检索
+          - "WebFetch"  # 获取在线法条（可选）
+      
+      # 知识库文件上传配置
+      kb_upload:
+        # 上传到 Qoder Files 的文件
+        # Agent 可在 sandbox 中访问这些文件
+        files:
+          - path: "kb_dir/"
+            pattern: "*.md"
+          - path: "kb_dir/"
+            pattern: "_知识库索引.json"
+          - path: "scripts/"
+            pattern: "hybrid_search.py"
+          - path: "scripts/"
+            pattern: "embedding_manager.py"
+          - path: "scripts/"
+            pattern: "bm25_searcher.py"
+          - path: "scripts/"
+            pattern: "reranker.py"
+          - path: "scripts/"
+            pattern: "graph_rag.py"
+          - path: "scripts/"
+            pattern: "query_rewriter.py"
+          - path: "scripts/"
+            pattern: "shared_utils.py"
+          - path: "assets/"
+            pattern: "keyword-expansion.yaml"
+      
+      # 环境配置
+      environment:
+        name: "legal-kb-env"
+        # Python 包依赖（在 sandbox 中安装）
+        packages:
+          pip:
+            - "jieba"
+            - "rank-bm25"
+            - "numpy"
+            - "PyYAML"
+            # 向量检索依赖（可选，按需启用）
+            # - "sentence-transformers"
+            # - "faiss-cpu"
+            # - "torch"
+            # GraphRAG 依赖（可选）
+            # - "networkx"
+
+
+# ═══════════════════════════════════════════════
+# 部署后输出（脚本自动填充，勿手填）
+# ═══════════════════════════════════════════════
+deployed:
+  platform: ""        # bailian / qoder
+  agent_id: ""        # Agent ID
+  app_id: ""          # 百炼应用 ID
+  session_id: ""      # Qoder Session ID
+  api_endpoint: ""    # 公网 API 地址
+  api_key: ""         # 调用密钥（如百炼 API Key）
+  deployed_at: ""     # 部署时间

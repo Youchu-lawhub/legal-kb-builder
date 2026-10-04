@@ -1,0 +1,14 @@
+# 向量语义检索 + Cross-Encoder 重排依赖
+# 
+# 用途：book_kb / case_kb / qa_kb 的向量检索路径 + RRF 融合后的 Cross-Encoder 精排
+# 不装时：hybrid_search 自动降级为"BM25 + 结构索引"两路融合（无向量、无重排）
+#
+# 安装大小：约 2.5GB（含 torch + 模型下载）
+# 首次使用会自动下载嵌入模型（bge-small-zh 约 100MB）
+#
+# 安装：
+#   pip install -r requirements-vector.txt
+
+sentence-transformers>=2.2.0   # 嵌入模型(Bi-Encoder) + 重排模型(Cross-Encoder)
+faiss-cpu>=1.7.4               # 向量索引
+torch>=2.0.0                   # sentence-transformers 的后端

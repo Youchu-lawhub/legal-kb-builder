@@ -1,0 +1,11 @@
+# GraphRAG 法条关联图谱依赖
+# 
+# 用途：从法律文本抽取法条/案例实体，构建知识图谱，支持多跳查询
+# 不装时：hybrid_search 自动降级为三路融合（无图谱路径）
+#
+# 安装大小：约 30MB
+#
+# 安装：
+#   pip install -r requirements-graph.txt
+
+networkx>=3.0    # 图算法和社区检测

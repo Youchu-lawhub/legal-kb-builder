@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets (project reads from env vars)
+.env
+
+# Development backups
+.backup_*/
+
+# Runtime artifacts
+eval/results/
+
+# User-local config (copy from .example.yaml)
+assets/parser-backends.yaml
+assets/deploy-backends.yaml
+
+# Model cache
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp

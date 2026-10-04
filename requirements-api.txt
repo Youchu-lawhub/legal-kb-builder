@@ -1,0 +1,13 @@
+# HTTP API 服务依赖
+# 
+# 用途：api_server.py，支撑前端问答平台和钉钉/飞书机器人 webhook
+# 不装时：api_server.py 无法启动，其他功能不受影响
+#
+# 安装大小：约 50MB
+#
+# 安装：
+#   pip install -r requirements-api.txt
+
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0

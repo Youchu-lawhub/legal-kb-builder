@@ -1,0 +1,140 @@
+# Legal KB Builder — 解析后端配置示例
+#
+# 复制本文件为 parser-backends.yaml 后填写你需要启用的后端。
+# 顺序：default_order 中先出现的先尝试；某个后端失败时自动降级到下一个。
+#
+# 通用字段：
+#   id            : 唯一标识
+#   enabled       : true / false（关掉即整体跳过）
+#   type          : command | http | passthrough
+#                   - command : 直接执行 shell 命令（最灵活，推荐所有本地/CLI 后端）
+#                   - http    : 云端 API（自行在 cmd 中填 curl 或封装脚本）
+#                   - passthrough : 直接把 md/txt 复制过来
+#   required_env  : http 后端需要的必填字段名（可从环境变量或本文件本层读取）
+#   cmd           : 命令模板，支持占位符 {input} {outdir} {output_md}
+#   timeout       : 秒，默认 600
+#   max_pages     : 该后端单文件最大页数限制（可选，默认见下表）
+#                   超过此限制时 parser_adapter 自动分片后逐片解析
+#
+# 各后端默认页数限制（2026-07 更新）：
+#   mineru            200 页（原 600，已降）
+#   aliyun-bailian    200 页
+#   hehe-textin       200 页
+#   paddleocr         500 页
+#   local-libreoffice 无硬限制
+#
+# 你可以只启用其中一个；只要有一个能跑通就行。
+# 若后端限制有变动，在此处 max_pages 字段覆盖即可，无需改代码。
+
+default_order:
+  - mineru
+  - aliyun-bailian
+  - hehe-textin
+  - paddleocr
+  - local-libreoffice
+  - local-html2md
+  - doc-parse-fallback
+  - raw-pass-through
+
+backends:
+
+  # ─────────────────────────────────────────
+  # 1. MinerU 官方 API（在线，最推荐做 PDF/扫描件）
+  # ─────────────────────────────────────────
+  - id: mineru
+    type: command
+    enabled: false
+    required_env: [MINERU_TOKEN]
+    max_pages: 200          # MinerU 当前单文件页数上限（2026-07 确认）
+    # 官方 CLI：pip install magic-pdf 或直接调 REST。示例走 REST：
+    cmd: |
+      curl -s -X POST "https://mineru.net/api/v4/extract/task" \
+           -H "Authorization: Bearer $MINERU_TOKEN" \
+           -F "file=@{input}" \
+           -F "is_ocr=true" \
+           -o {output_md}
+    timeout: 900
+
+  # ─────────────────────────────────────────
+  # 2. 阿里云百炼平台（文档理解 / 通义千问 VL / OCR）
+  # ─────────────────────────────────────────
+  - id: aliyun-bailian
+    type: command
+    enabled: false
+    required_env: [DASHSCOPE_API_KEY]
+    # 走 DashScope SDK / REST，都可以。这里用户可以替换为自己的封装脚本：
+    #   python your_bailian_wrapper.py --file {input} > {output_md}
+    cmd: |
+      python3 -c "print('请在此填入阿里云百炼调用命令，输出 markdown 到 stdout')" \
+        > {output_md}
+    timeout: 600
+
+  # ─────────────────────────────────────────
+  # 3. 合合信息 TextIn 通用文档解析
+  # ─────────────────────────────────────────
+  - id: hehe-textin
+    type: command
+    enabled: false
+    required_env: [TEXTIN_APP_ID, TEXTIN_APP_SECRET]
+    # 官方 REST：https://www.textin.com/document/pdf_to_markdown
+    cmd: |
+      curl -s "https://api.textin.com/ai/service/v1/pdf_to_markdown" \
+           -H "x-ti-app-id: $TEXTIN_APP_ID" \
+           -H "x-ti-secret-code: $TEXTIN_APP_SECRET" \
+           --data-binary @{input} > {output_md}
+    timeout: 600
+
+  # ─────────────────────────────────────────
+  # 4. PaddleOCR 本地/自建（离线 OCR，适合图片和扫描件）
+  # ─────────────────────────────────────────
+  - id: paddleocr
+    type: command
+    enabled: false
+    # 你可以先本地 pip install "paddleocr>=2.7"，然后自写包装脚本；
+    # 也可以用官方 REST 服务。示例假设已有 paddleocr_to_md.py：
+    cmd: |
+      python3 paddleocr_to_md.py --input {input} --output {output_md}
+    timeout: 600
+
+  # ─────────────────────────────────────────
+  # 5. LibreOffice / pandoc 本地转换（doc / docx / ppt / pptx / html）
+  # ─────────────────────────────────────────
+  - id: local-libreoffice
+    type: command
+    enabled: false
+    # 需要系统装了 libreoffice + pandoc
+    cmd: |
+      soffice --headless --convert-to pdf --outdir {outdir} {input} \
+        && pandoc "{outdir}/$(basename {input} | sed 's/\.[^.]*$//').pdf" \
+                  -t gfm -o {output_md}
+    timeout: 600
+
+  # ─────────────────────────────────────────
+  # 6. HTML → Markdown（markdownify 或 pandoc）
+  # ─────────────────────────────────────────
+  - id: local-html2md
+    type: command
+    enabled: false
+    cmd: |
+      pandoc {input} -t gfm -o {output_md}
+    timeout: 120
+
+  # ─────────────────────────────────────────
+  # 7. 本地 doc-parse 兜底（若你已经装了任意通用 doc→md 脚本，
+  #    比如某个 skill 目录下的 doc_parser.py）
+  # ─────────────────────────────────────────
+  - id: doc-parse-fallback
+    type: command
+    enabled: false
+    # 请把下面路径改成你本地的 doc-parse 脚本路径
+    cmd: |
+      python3 /path/to/your/doc_parser.py --file={input} \
+        > {output_md}
+    timeout: 900
+
+  # ─────────────────────────────────────────
+  # 8. 兜底直通（输入本身是 .md/.txt 时直接复制）
+  # ─────────────────────────────────────────
+  - id: raw-pass-through
+    type: passthrough
+    enabled: true

@@ -1,0 +1,14 @@
+# 一键安装全部依赖（方便想一次性装齐的用户）
+#
+# 注意：会下载约 3GB（主要是 torch + 模型）
+# 大多数用户不需要全部依赖，建议按场景安装，见 SKILL.md §15
+#
+# 安装：
+#   pip install -r requirements-all.txt
+
+-r requirements.txt            # 必需 + 建议
+-r requirements-vector.txt     # 向量检索 + 重排
+-r requirements-graph.txt      # GraphRAG 图谱
+-r requirements-api.txt        # HTTP API
+-r requirements-mcp.txt        # MCP 服务
+-r requirements-eval.txt       # RAG 评估

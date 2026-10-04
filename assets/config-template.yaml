@@ -1,0 +1,129 @@
+# Legal Knowledge Base 配置模板
+
+knowledge_base:
+  name: "法律知识库"
+  path: "./legal_kb"
+  
+processing:
+  # PDF拆分模式: bookmark(书签) / manual(手动) / auto(自动)
+  split_mode: "bookmark"
+  ocr_enabled: true
+  
+  # 质量校验配置
+  quality_check:
+    enabled: true
+    ocr_confidence_threshold: 0.85
+    check_chapter_continuity: true
+    check_citation_integrity: true
+    
+  # 增强索引配置
+  enhanced_index:
+    extract_articles: true      # 提取法条编号
+    extract_scholars: true      # 提取学者观点
+    build_citation_graph: true  # 构建引用关系图
+    extract_chapters: true      # 提取章节结构
+
+search:
+  # 默认检索模式: exact(精确) / keyword(关键词) / hybrid(混合)
+  default_mode: "hybrid"
+  
+  # 结果配置
+  results:
+    max_results: 10
+    snippet_length: 200
+    include_context: true
+  
+  # AI 增强（可选：由宿主 AI Agent 环境提供，无需 API key）
+  ai_enhancement:
+    enabled: true
+    # 本工具不直接调用外部 LLM；如果宿主 Agent（Claude Code / Cursor /
+    # QoderWork / Gemini CLI / OpenCode 等）提供了 LLM 能力，会自动被利用。
+
+  # BM25 关键词检索配置
+  bm25:
+    enabled: true
+    synonym_expansion: true
+    # 默认使用本包 assets/keyword-expansion.yaml；也可指向你自己的词表
+    synonym_path: "./assets/keyword-expansion.yaml"
+
+  # 向量语义检索配置
+  vector:
+    enabled: true
+    # 嵌入模型（可切换，模型变更后需重建索引）
+    #   BAAI/bge-small-zh-v1.5  (384维, 默认, 轻量快速)
+    #   BAAI/bge-large-zh-v1.5  (1024维, 精度更高)
+    #   BAAI/bge-m3             (1024维, 多语言+多粒度, 2025 前沿)
+    model: "BAAI/bge-small-zh-v1.5"
+    model_cache: "~/.cache/legal-kb-builder/models/"
+    # 分块策略：
+    #   flat          段落边界分块，单一粒度（默认）
+    #   parent_child  父子分块，小块检索+大块上下文（推荐生产环境）
+    chunk_strategy: "flat"
+    chunk_size: 512        # flat 策略的块大小
+    chunk_overlap: 50      # flat 策略的重叠
+    child_size: 256        # parent_child 策略的子块大小
+    parent_size: 1024      # parent_child 策略的父块大小
+  
+  # 多路融合配置
+  fusion:
+    method: "rrf"  # reciprocal rank fusion
+    rrf_k: 60
+    weights:
+      index_lookup: 1.0
+      bm25: 1.0
+      vector: 1.0
+      graph: 1.0           # GraphRAG 法条关联图谱（v2.2）
+  
+  # GraphRAG 法条关联图谱配置（v2.2 新增）
+  # 从法律文本抽取法条/案例/法律名实体，构建关联图谱，支持多跳查询
+  # 图谱不存在时自动降级为三路融合（index+bm25+vector）
+  graph:
+    enabled: true
+    max_depth: 2           # 多跳查询最大深度
+    top_k: 10              # 返回结果数
+  
+  # 查询改写配置（v2.2 新增）
+  # 检索前对查询做规范化+同义词扩展+指代消解+子问题拆解
+  query_rewrite:
+    enabled: true
+    mode: "rule"           # "rule"(规则模式,默认) 或 "llm"(LLM模式,需API key)
+  
+  # Cross-Encoder 重排序配置（v2.1 新增）
+  # RRF 融合后对 Top-N 候选做 Cross-Encoder 精排，取 Top-K 输出
+  # 可选依赖：需 sentence-transformers（已含于向量检索依赖）
+  # 未安装时自动降级为纯 RRF
+  rerank:
+    enabled: true
+    model: "BAAI/bge-reranker-v2-m3"  # 开源多语言重排模型
+    candidate_pool: 30  # 从 RRF 结果取前 N 个做重排
+    top_k: 5            # 重排后输出的最终结果数
+# 学者名单（用于观点提取）
+scholars:
+  - "王泽鉴"
+  - "崔建远"
+  - "梁慧星"
+  - "朱庆育"
+  - "杨立新"
+  - "张新宝"
+  - "王利明"
+  - "孙宪忠"
+  - "陈华彬"
+  - "尹田"
+
+# 法律术语（用于关键词提取）
+legal_terms:
+  - "意思表示"
+  - "法律行为"
+  - "无权代理"
+  - "表见代理"
+  - "善意取得"
+  - "违约责任"
+  - "侵权责任"
+  - "不当得利"
+  - "无因管理"
+  - "物权变动"
+  - "债权让与"
+  - "债务承担"
+  - "合同解除"
+  - "损害赔偿"
+  - "诉讼时效"

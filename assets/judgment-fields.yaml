@@ -1,0 +1,93 @@
+# Judgment field definitions and embedding configuration
+# Used by judgment_kb.py for field-weighted search
+
+fields:
+  case_number:
+    type: "metadata"
+    searchable: true
+    embeddable: false
+    description: "案号，如 (2023)京0108民初12345号"
+
+  court:
+    type: "metadata"
+    searchable: true
+    embeddable: false
+    description: "审理法院"
+
+  procedure:
+    type: "metadata"
+    searchable: true
+    embeddable: false
+    description: "审判程序：一审/二审/再审"
+
+  cause_of_action:
+    type: "metadata"
+    searchable: true
+    embeddable: true
+    embedding_weight: 1.0
+    description: "案由"
+
+  parties:
+    type: "metadata"
+    searchable: true
+    embeddable: false
+    description: "当事人信息"
+
+  claims:
+    type: "text"
+    searchable: true
+    embeddable: true
+    embedding_weight: 0.5
+    description: "诉讼请求"
+
+  found_facts:
+    type: "text"
+    searchable: true
+    embeddable: true
+    embedding_weight: 1.0
+    description: "经审理查明的事实"
+
+  court_reasoning:
+    type: "text"
+    searchable: true
+    embeddable: true
+    embedding_weight: 2.0
+    description: "本院认为（最重要的部分）"
+
+  judgment_result:
+    type: "text"
+    searchable: true
+    embeddable: true
+    embedding_weight: 1.0
+    description: "判决/裁定结果"
+
+  applied_laws:
+    type: "metadata_list"
+    searchable: true
+    embeddable: false
+    description: "适用的法律条文"
+
+  dispute_focus:
+    type: "text"
+    searchable: true
+    embeddable: true
+    embedding_weight: 1.5
+    description: "争议焦点（不一定存在）"
+
+# Embedding configuration
+embedding:
+  model: "BAAI/bge-small-zh-v1.5"
+  dimension: 384
+  max_text_length: 512
+  # Fields to embed and their weights for search scoring
+  embeddable_fields:
+    - field: "court_reasoning"
+      weight: 2.0
+    - field: "found_facts"
+      weight: 1.0
+    - field: "judgment_result"
+      weight: 1.0
+    - field: "dispute_focus"
+      weight: 1.5
+    - field: "cause_of_action"
+      weight: 1.0

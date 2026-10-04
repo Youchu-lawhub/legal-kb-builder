@@ -1,0 +1,12 @@
+# RAG 评估框架依赖
+# 
+# 用途：eval/eval_rag.py 的 RAGAS 五指标评估（faithfulness/answer_relevance 等）
+# 不装时：基础检索指标（hit_rate/mrr/recall）仍可用，RAGAS 指标跳过
+#
+# 注意：RAGAS 需要 LLM API（默认 OpenAI，可通过环境变量配置其他）
+#
+# 安装：
+#   pip install -r requirements-eval.txt
+
+ragas>=0.1.0
+datasets>=2.0.0

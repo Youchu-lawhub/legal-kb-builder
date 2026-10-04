@@ -1,0 +1,167 @@
+# 业务咨询智能体配置
+# 供 consultation_agent.py 使用
+#
+# 咨询智能体的职责：
+#   1. 理解用户业务咨询意图
+#   2. 路由到最合适的知识库（book_kb / case_kb / qa_kb / agentic）
+#   3. 融合多源证据，生成结构化回答
+#   4. 支持多轮对话上下文
+
+# ===== 意图分类 =====
+intent_classification:
+  # 意图关键词规则（按优先级，先命中先返回）
+  rules:
+    - intent: article_lookup       # 法条查询
+      keywords: ["第几条", "第.*条", "法条", "条文", "法律规定", "哪一条"]
+      description: 用户想查具体法条原文
+      route_to: book_kb
+
+    - intent: case_search          # 案例检索
+      keywords: ["案例", "判例", "判决", "怎么判", "法院会", "法官", "案号"]
+      description: 用户想找相关裁判案例
+      route_to: case_kb
+
+    - intent: faq_consult          # 常见问题咨询
+      keywords: ["怎么办", "如何处理", "能不能", "是否可以", "可以吗", "需要什么", "流程", "手续", "常见问题", "FAQ"]
+      description: 用户在问业务操作性问题
+      route_to: qa_kb
+
+    - intent: scholarly_inquiry    # 学理探究
+      keywords: ["构成要件", "法律性质", "理论", "学说", "争议", "观点", "王泽鉴", "崔建远"]
+      description: 用户想了解学理观点
+      route_to: book_kb
+
+    - intent: practical_guide      # 实务指引
+      keywords: ["操作", "步骤", "怎么操作", "实务", "注意事项", "风险", "防范"]
+      description: 用户想要实务操作指引
+      route_to: qa_kb
+
+  # 默认意图（无法分类时）
+  default_intent: faq_consult
+  default_route_to: qa_kb
+
+# ===== 知识库路由 =====
+kb_routing:
+  # 每种意图优先查询的知识库（按优先级排列）
+  # 智能体会依次查询，合并结果
+  routes:
+    article_lookup:
+      - book_kb
+      - qa_kb          # 问答库里也可能有法条解读
+    case_search:
+      - case_kb
+      - qa_kb          # 问答库里可能有案例归纳
+    faq_consult:
+      - qa_kb
+      - book_kb        # 兜底到书籍库找理论支撑
+    scholarly_inquiry:
+      - book_kb
+      - case_kb        # 配合案例佐证
+    practical_guide:
+      - qa_kb
+      - book_kb
+      - case_kb
+
+  # 知识库路径解析（运行时从环境变量或配置读取）
+  # 优先级：命令行 --kb-* > 环境变量 > consultation-config.kb_paths > 自动发现
+  kb_path_env:
+    book_kb: "BOOK_KB_PATH"
+    case_kb: "CASE_KB_PATH"
+    qa_kb: "QA_KB_PATH"
+    agentic_library: "AGENTIC_LIBRARY_PATH"
+
+# ===== 回答生成策略 =====
+answer_generation:
+  # 回答模板（按意图选择）
+  templates:
+    article_lookup:
+      structure:
+        - "【法条原文】"
+        - "【条文主旨】"
+        - "【理解与适用】"
+        - "【关联条文】"
+      max_evidence: 3
+      citation_required: true
+
+    case_search:
+      structure:
+        - "【检索到的相关案例】"
+        - "【裁判要旨】"
+        - "【类案裁判规则】"
+      max_evidence: 5
+      citation_required: true
+
+    faq_consult:
+      structure:
+        - "【直接回答】"
+        - "【法律依据】"
+        - "【操作建议】"
+        - "【注意事项】"
+      max_evidence: 3
+      citation_required: false
+
+    scholarly_inquiry:
+      structure:
+        - "【问题界定】"
+        - "【通说观点】"
+        - "【不同学说】"
+        - "【实务倾向】"
+      max_evidence: 4
+      citation_required: true
+
+    practical_guide:
+      structure:
+        - "【操作步骤】"
+        - "【法律依据】"
+        - "【风险提示】"
+      max_evidence: 3
+      citation_required: true
+
+  # 证据融合：当多个知识库都返回结果时
+  fusion:
+    # 单条证据的最低相关度阈值（低于则丢弃）
+    # 注意：RRF 融合分数是相对排名分数，量级约 0.01-0.10，不是绝对相关度
+    min_relevance: 0.01
+    # 每个知识库最多取多少条证据
+    max_per_kb: 5
+    # 最终回答中最多引用多少条证据
+    max_total_evidence: 8
+    # 去重：证据文本相似度超过此阈值则合并
+    dedup_threshold: 0.75
+
+# ===== 多轮对话 =====
+dialogue:
+  # 上下文窗口：保留最近 N 轮对话
+  context_window: 5
+  # 指代消解：用户说"那这个呢"时，尝试用上一轮的实体替换
+  coreference_resolution: true
+  # 上下文衰减：第 k 轮的权重 = decay^(k-1)
+  decay: 0.6
+  # 澄清阈值：当 top1 相关度低于此值时，主动要求用户澄清（RRF 量级）
+  clarify_threshold: 0.015
+
+# ===== 兜底策略 =====
+fallback:
+  # 所有知识库都无结果时
+  no_result_message: "抱歉，当前知识库中未找到与您问题直接相关的内容。建议您：\n1. 换一种表述重新提问\n2. 提供更多背景信息\n3. 联系人工客服"
+  # 检索分数低于阈值时，添加复核提示；RRF 分数不是答案正确概率
+  low_confidence_message: "以下回答仅供参考，建议结合具体情况咨询专业人士："
+  min_retrieval_score: 0.02
+
+# ===== 知识库自动发现 =====
+# 当未显式配置知识库路径时，在这些目录下自动发现已构建的 KB
+auto_discovery:
+  search_dirs:
+    - "~/legal_kb"           # 用户主目录下的 legal_kb
+    - "./kbs"                # 当前工作目录下的 kbs
+    - "./legal_kb"
+  # KB 类型识别：根据目录内的特征文件判断类型
+  type_detection:
+    qa_kb:
+      has_files: ["config.yaml"]
+      has_dirs: ["qa_pairs"]
+    case_kb:
+      has_files: ["config.yaml"]
+      has_dirs: ["judgments"]
+    book_kb:
+      has_files: ["_知识库索引.json", "indices/main_index.json"]

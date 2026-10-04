@@ -1,0 +1,76 @@
+# 问答集知识库字段与嵌入权重配置
+# 供 qa_kb.py 使用
+#
+# 问答检索的核心策略：
+#   1. 问题匹配为主 —— 用户提问与库中"问题"字段的相似度
+#   2. 答案召回为辅 —— 用户提问与库中"答案"内容的相似度
+#   3. 结构精确匹配 —— 分类/标签/来源的精确过滤
+
+# ===== 问答对字段定义 =====
+qa_pair_fields:
+  - field: question
+    name: 问题
+    description: 咨询问题的原文
+    required: true
+  - field: answer
+    name: 答案
+    description: 对应的解答内容
+    required: true
+  - field: category
+    name: 分类
+    description: 业务分类（如 合同/劳动/侵权/公司）
+    required: false
+  - field: tags
+    name: 标签
+    description: 关键词标签列表
+    required: false
+  - field: source
+    name: 来源
+    description: 答案依据（法条/规章/内部规范）
+    required: false
+  - field: confidence
+    name: 置信度
+    description: 该问答对的可靠性（0-1，人工标注或导入时指定）
+    required: false
+
+# ===== 嵌入权重 =====
+# 向量索引构建时，按权重重复拼接字段文本（权重 2.0 = 出现两次）
+# 策略：问题权重高于答案，因为检索时"用户提问 ↔ 库内问题"的语义对齐最重要
+embedding:
+  embeddable_fields:
+    - field: question
+      weight: 3.0
+    - field: answer
+      weight: 1.0
+    - field: tags
+      weight: 2.0
+  # BM25 索引文本拼接（平等拼接，不重复）
+  bm25_fields:
+    - question
+    - answer
+    - tags
+
+# ===== 检索融合权重 =====
+# RRF 融合时各路的权重系数（默认 RRF 等权，这里可微调）
+fusion:
+  method: rrf              # rrf | weighted
+  rrf_k: 60                # RRF 平滑常数
+  weights:
+    question_semantic: 1.5  # 问题向量匹配（最重要）
+    question_bm25: 1.2       # 问题关键词匹配
+    answer_semantic: 0.8     # 答案向量匹配
+    answer_bm25: 0.6         # 答案关键词匹配
+    exact_category: 1.0      # 分类精确匹配加分
+
+# ===== 相似问题推荐 =====
+similar_questions:
+  # 检索 top_k 结果后，把分数 >= threshold 的问题作为"相似问题"推荐
+  threshold: 0.55
+  max_recommend: 5          # 最多推荐 5 个相似问题
+
+# ===== 问题聚类（可选，构建时执行） =====
+clustering:
+  enabled: false            # 默认关闭（需要 scikit-learn）
+  method: kmeans            # kmeans | agglomerative
+  n_clusters: 0             # 0 = 自动（min(samples/5, 50)）
+  min_cluster_size: 3       # 少于 3 个问题的簇不单独成类

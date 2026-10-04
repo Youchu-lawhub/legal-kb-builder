@@ -1,0 +1,97 @@
+# 法律文本规范化规则
+# 用于 text_cleaner.py 的法律领域专用清洗
+#
+# 主要处理：
+#   1. 法院名称的 OCR 空格修复
+#   2. 法律名称的书名号内空格修复
+#   3. 法条编号的中文数字断裂修复
+#   4. 常见法律文书格式标准化
+
+# ===== 法院名称修复 =====
+# 修复 OCR 在法院名称中插入的空格
+court_names:
+  - pattern: "最高人民法\\s*院"
+    replacement: "最高人民法院"
+  - pattern: "高级人民法\\s*院"
+    replacement: "高级人民法院"
+  - pattern: "中级人民法\\s*院"
+    replacement: "中级人民法院"
+  - pattern: "基层人民法\\s*院"
+    replacement: "基层人民法院"
+  - pattern: "人民检\\s*察\\s*院"
+    replacement: "人民检察院"
+  - pattern: "仲\\s*裁\\s*委\\s*员\\s*会"
+    replacement: "仲裁委员会"
+
+# ===== 法律名称修复 =====
+# 修复书名号内法律名称的 OCR 空格
+law_names:
+  - pattern: "《\\s*民\\s*法\\s*典\\s*》"
+    replacement: "《民法典》"
+  - pattern: "《\\s*合\\s*同\\s*法\\s*》"
+    replacement: "《合同法》"
+  - pattern: "《\\s*物\\s*权\\s*法\\s*》"
+    replacement: "《物权法》"
+  - pattern: "《\\s*侵\\s*权\\s*责\\s*任\\s*法\\s*》"
+    replacement: "《侵权责任法》"
+  - pattern: "《\\s*民\\s*事\\s*诉\\s*讼\\s*法\\s*》"
+    replacement: "《民事诉讼法》"
+  - pattern: "《\\s*刑\\s*法\\s*》"
+    replacement: "《刑法》"
+  - pattern: "《\\s*刑\\s*事\\s*诉\\s*讼\\s*法\\s*》"
+    replacement: "《刑事诉讼法》"
+  - pattern: "《\\s*行\\s*政\\s*诉\\s*讼\\s*法\\s*》"
+    replacement: "《行政诉讼法》"
+  - pattern: "《\\s*公\\s*司\\s*法\\s*》"
+    replacement: "《公司法》"
+  - pattern: "《\\s*劳\\s*动\\s*法\\s*》"
+    replacement: "《劳动法》"
+  - pattern: "《\\s*劳\\s*动\\s*合\\s*同\\s*法\\s*》"
+    replacement: "《劳动合同法》"
+  - pattern: "《\\s*婚\\s*姻\\s*法\\s*》"
+    replacement: "《婚姻法》"
+  - pattern: "《\\s*继\\s*承\\s*法\\s*》"
+    replacement: "《继承法》"
+  - pattern: "《\\s*担\\s*保\\s*法\\s*》"
+    replacement: "《担保法》"
+  # 通用模式：修复书名号内的多余空格
+  - pattern: "《([^》]{1,3})\\s+([^》]+)》"
+    replacement: "《\\1\\2》"
+
+# ===== 法条编号修复 =====
+# 修复中文数字法条编号中的空格断裂
+article_number_fixes:
+  # "第一百二十 三条" -> "第一百二十三条"
+  - pattern: "第([一二三四五六七八九十百千零]+)\\s+([一二三四五六七八九十百千零]+)条"
+    replacement: "第\\1\\2条"
+  # "第 123 条" -> "第123条"（保留此格式也可接受，但规范化更好）
+  - pattern: "第\\s+(\\d+)\\s+条"
+    replacement: "第\\1条"
+  # "第 一百 二十三 条" -> "第一百二十三条"
+  - pattern: "第\\s*([一二三四五六七八九十百千零]+)\\s*([一二三四五六七八九十百千零]*)\\s*([一二三四五六七八九十百千零]*)\\s*条"
+    replacement: "第\\1\\2\\3条"
+
+# ===== 章节编号修复 =====
+chapter_number_fixes:
+  - pattern: "第([一二三四五六七八九十]+)\\s+章"
+    replacement: "第\\1章"
+  - pattern: "第([一二三四五六七八九十]+)\\s+节"
+    replacement: "第\\1节"
+  - pattern: "第([一二三四五六七八九十]+)\\s+编"
+    replacement: "第\\1编"
+
+# ===== 标点符号修复 =====
+punctuation_fixes:
+  # 中文标点被替换为英文标点的常见情况
+  - pattern: "\\(([一二三四五六七八九十\\d]+)\\)"
+    replacement: "（\\1）"
+    description: "法条中的序号括号应使用中文全角"
+
+# ===== 停用模式 =====
+# 在某些上下文中不应触发的替换（安全阀）
+exclusion_contexts:
+  # 不在代码块内做替换
+  - "```"
+  # 不在 URL 内做替换
+  - "http://"
+  - "https://"

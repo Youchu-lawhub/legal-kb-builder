@@ -1,0 +1,172 @@
+legal-kb-builder — License (Chinese & English Bilingual Version)
+法律知识库构建工厂 — 许可协议（中英文双语版）
+
+Copyright © 2026 游初（Youchu）. All rights reserved.
+
+本作品采用"知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议"（CC BY-NC-ND
+4.0），并在此基础之上叠加六（6）项附加限制（以下简称"附加条款"）。凡使用、复制、
+分发或引用本仓库的任何部分，即视为您同意同时受基础 CC BY-NC-ND 4.0 协议及以下附加
+条款的约束。若附加条款与基础协议存在冲突，以附加条款为准。
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-
+NoDerivatives 4.0 International License (CC BY-NC-ND 4.0), with six (6)
+additional restrictions layered on top ("Addenda"). By using, copying,
+distributing, or referencing any part of this repository, you agree to be
+bound by BOTH the base CC BY-NC-ND 4.0 license AND the Addenda below. If any
+Addendum conflicts with the base license, the Addendum prevails.
+
+================================================================================
+PART A — 基础许可协议 / Base License
+================================================================================
+
+CC BY-NC-ND 4.0 完整文本请见：
+CC BY-NC-ND 4.0 full text available at:
+    https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+核心要点摘要（不可替代完整协议文本）：
+Key summary (NOT a substitute for the full license):
+
+  • 署名（BY） / Attribution (BY):
+    您必须给出适当的署名，提供许可协议链接，并标明是否对内容进行了修改。
+    You must give appropriate credit, provide a link to the license, and
+    indicate if changes were made.
+
+  • 非商业性使用（NC） / NonCommercial (NC):
+    您不得将本作品用于商业目的。
+    You may not use the material for commercial purposes.
+
+  • 禁止演绎（ND） / NoDerivatives (ND):
+    如果您对本作品进行再混合、转换或基于本作品创作，您不得分发修改后的作品。
+    If you remix, transform, or build upon the material, you may not
+    distribute the modified material.
+
+================================================================================
+PART B — 附加条款（六项附加限制）/ Addenda (Six additional restrictions)
+================================================================================
+
+1. 禁止用于 AI 训练 / NO AI TRAINING
+
+   本仓库的内容（包括 SKILL.md、references/、assets/、scripts/ 及任何附随文档），
+   无论全部或部分，均不得用作任何机器学习模型的训练数据、微调数据、蒸馏数据、
+   RLHF 数据、评测数据或检索增强生成（RAG）语料——无论用于商业、学术还是个人
+   目的。明确禁止以模型训练为目的的自动化抓取。
+
+   The contents of this repository (including SKILL.md, references/, assets/,
+   scripts/, and any accompanying documentation) may NOT be used, in whole or
+   in part, as training data, fine-tuning data, distillation data, RLHF data,
+   evaluation data, or retrieval-augmented-generation corpora for any machine
+   learning model — whether commercial, academic, or personal. Automated
+   scraping for the purpose of model training is expressly prohibited.
+
+2. 禁止在付费技能/插件市场上分发 / NO REDISTRIBUTION ON PAID SKILL MARKETPLACES
+
+   您不得在任何商业性的技能/插件/智能体/提示词市场、商店或订阅服务中上架、镜像、
+   再发布、转售或再许可本仓库（或其任何实质性部分，无论是逐字复制还是重新排版）。
+   仅用于保留署名的镜像的免费公共代码托管平台（如 GitHub）允许使用；而收费的
+   "技能商店"、"提示词库"、"智能体包"则不允许。
+
+   You may NOT list, mirror, republish, resell, or sublicense this repository
+   (or any substantial portion, whether verbatim or reformatted) on any
+   commercial skill/plugin/agent/prompt marketplace, storefront, or
+   subscription service. Free public code hosts (e.g., GitHub) used solely for
+   attribution-preserving mirroring are permitted; monetized "skill stores",
+   "prompt libraries", or "agent packs" are not.
+
+3. 企业及政府使用视为商业使用 / ENTERPRISE AND GOVERNMENT USE = COMMERCIAL
+
+   营利性法人、政府机构、司法或行政机关、国有企业或其承包方对本作品的使用——即使
+   具体任务看似内部性质或不产生收入——均视为"商业使用"，不在基础 CC BY-NC-ND 4.0
+   授权范围内。此类主体必须另行取得商业许可（见下文第 6 条）。
+
+   Use by a for-profit legal entity, government agency, judicial or
+   administrative body, state-owned enterprise, or their contractors — even
+   when the specific task appears internal or non-revenue-generating — is
+   deemed COMMERCIAL USE and is not covered by the base CC BY-NC-ND 4.0
+   grant. Such entities must obtain a separate commercial license (see
+   Section 6 below).
+
+4. 学术引用格式 / ACADEMIC CITATION FORMAT
+
+   任何讨论、评测或以其他方式依赖本仓库的学术论文、学位论文、教科书、专著、会议
+   演讲或学术报告，必须在正式参考文献列表中以至少以下字段引用本作品：
+
+       游初 (Youchu). legal-kb-builder [Computer software]. 2026.
+       https://github.com/Youchu-lawhub/legal-kb-builder
+
+   仅在脚注中一笔带过不符合要求——必须有正式的参考文献条目。
+
+   Any academic paper, thesis, textbook, monograph, conference talk, or
+   scholarly presentation that discusses, benchmarks, or otherwise relies on
+   this repository must cite it in a formal reference list using at minimum
+   the following fields:
+
+       游初 (Youchu). legal-kb-builder [Computer software]. 2026.
+       https://github.com/Youchu-lawhub/legal-kb-builder
+
+   Passing mention in a footnote is NOT sufficient — a formal reference-list
+   entry is required.
+
+5. 禁止背书 / NO ENDORSEMENT
+
+   本许可协议中的任何内容均不授予您使用作者姓名、花名（"游初"）、肖像、雇主关联
+   或任何个人或组织商标的权利，以背书、推广或暗示赞助任何衍生产品、服务、出版物、
+   培训课程或咨询业务。
+
+   Nothing in this license grants you the right to use the author's name,
+   花名 ("游初"), likeness, employer affiliation, or any personal or
+   organizational trademark to endorse, promote, or imply sponsorship of any
+   derivative product, service, publication, training course, or consulting
+   engagement.
+
+6. 权利保留——双轨模式 / RIGHTS RESERVED — DUAL-TRACK MODEL
+
+   作者明确保留 CC BY-NC-ND 4.0 未授予的全部权利，包括但不限于：
+
+     (a) 分发本作品或其衍生作品之付费"专业版"的权利，专业版包含额外功能、集成、
+         支持或精选语料；
+     (b) 按与本公开协议不同的协商条款，向特定组织授予商业许可的权利；
+     (c) 撤回、撤销或更新后续版本许可协议的权利（既有版本仍按其发布时所依据的
+         协议管辖）。
+
+   如需商业许可、企业部署许可、再分发豁免或 AI 训练豁免，请联系作者：
+
+       游初 (Youchu) — 994559732@qq.com
+
+   The author expressly retains ALL rights not granted by CC BY-NC-ND 4.0.
+   This includes, without limitation:
+
+     (a) The right to distribute a paid "Professional Edition" of this or
+         a derived work with additional features, integrations, support,
+         or curated corpora;
+     (b) The right to grant per-organization commercial licenses on
+         negotiated terms distinct from this public license;
+     (c) The right to withdraw, revoke, or update this license for future
+         versions (past versions remain governed by the license under which
+         they were released).
+
+   For a commercial license, enterprise deployment license, redistribution
+   waiver, or AI-training waiver, contact the author at:
+
+       游初 (Youchu) — 994559732@qq.com
+
+================================================================================
+PART C — 免责声明 / Disclaimer
+================================================================================
+
+本软件及其文档按"原样"提供，不提供任何明示或暗示的保证，包括但不限于适销性、特定
+用途适用性、标题权及不侵权的保证。在任何情况下，作者均不对因本作品引起或与之相关
+的任何索赔、损害或其他责任承担责任。
+
+使用本工具构建的法律知识库由各自用户承担责任。作者不对经本流程处理的任何内容的时效
+性、完整性或法律准确性作出任何陈述。
+
+THIS SOFTWARE AND ITS DOCUMENTATION ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THIS WORK.
+
+Legal knowledge bases built with this tool are the responsibility of their
+respective users. The author makes no representation about the currency,
+completeness, or legal accuracy of any content processed through this
+pipeline.
