@@ -1,7 +1,5 @@
 # legal-kb-builder
 
-![version](https://img.shields.io/badge/version-2.0.0-blue)
-
 **本地法律知识库建设一体化工厂。**
 
 用于本地整理、索引和检索法律材料；对外 API 需要显式配置身份验证并经受控网络部署。
